@@ -1,16 +1,23 @@
 package com.liuh.mtoutiao.ui.base;
 
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
 
 import com.liuh.mtoutiao.app.listener.PermissionListener;
 import com.liuh.mtoutiao.service.presenter.BasePresenter;
 import com.liuh.mtoutiao.ui.activity.MainActivity;
+import com.liuh.mtoutiao.ui.utils.UIUtils;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,10 +37,9 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
     protected Bundle saveInstanceState;
     public PermissionListener mPermissionListener;
 
-
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         this.saveInstanceState = savedInstanceState;
         //初始化的时候将其添加到集合中
         synchronized (mActivities) {
@@ -50,8 +56,8 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
         initData();
 
         initListener();
-
     }
+
 
     @Override
     protected void onResume() {
@@ -69,6 +75,7 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
     protected void onDestroy() {
         super.onDestroy();
 
+        //销毁的时候从集合中移除
         synchronized (mActivities) {
             mActivities.remove(this);
         }
@@ -78,30 +85,104 @@ public abstract class BaseActivity<T extends BasePresenter> extends AppCompatAct
         }
     }
 
+    public static Activity getCurrentActivity() {
+        return mCurrentActivity;
+    }
+
     @Override
     public void onBackPressed() {
         if (mCurrentActivity instanceof MainActivity) {
             if (System.currentTimeMillis() - mPreTime > 2000) {
-
-
+                UIUtils.showToast("再按一次，退出应用");
+                mPreTime = System.currentTimeMillis();
+                return;
             }
-
         }
-
 
         super.onBackPressed();
     }
 
-    private void initView() {
+    public boolean isEventBusRegisted(Object subscriber) {
+        return EventBus.getDefault().isRegistered(subscriber);
+    }
+
+    public void registEventBus(Object subscriber) {
+        if (!isEventBusRegisted(subscriber)) {
+            EventBus.getDefault().register(subscriber);
+        }
+    }
+
+    public void unregistEventBus(Object subscriber) {
+        if (isEventBusRegisted(subscriber)) {
+            EventBus.getDefault().unregister(subscriber);
+        }
+    }
+
+
+    /**
+     * 申请运行时权限
+     *
+     * @param permissions
+     * @param permissionListener
+     */
+    public void requestRuntimePermission(String[] permissions, PermissionListener permissionListener) {
+
+        mPermissionListener = permissionListener;
+        List<String> permissionList = new ArrayList<>();
+
+
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                permissionList.add(permission);
+            }
+        }
+
+        if (!permissionList.isEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionList.toArray(new String[permissionList.size()]), 1);
+        } else {
+            permissionListener.onGranted();
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0) {
+                    List<String> deniedPermission = new ArrayList<>();
+                    for (int i = 0; i < grantResults.length; i++) {
+                        int grantResult = grantResults[i];
+                        String permission = permissions[i];
+                        if (grantResult == PackageManager.PERMISSION_DENIED) {
+                            deniedPermission.add(permission);
+                        }
+                    }
+
+                    if (deniedPermission.isEmpty()) {
+                        mPermissionListener.onGranted();
+                    } else {
+                        mPermissionListener.onDenied(deniedPermission);
+                    }
+                }
+                break;
+
+        }
+
+    }
+
+    protected void initView() {
 
     }
 
 
-    private void initData() {
+    protected void initData() {
 
     }
 
-    private void initListener() {
+    protected void initListener() {
 
     }
 

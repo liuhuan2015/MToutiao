@@ -1,50 +1,66 @@
 package com.liuh.mtoutiao.ui.activity;
 
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.widget.TextView;
-
-import com.liuh.mtoutiao.service.entity.Book;
-import com.liuh.mtoutiao.service.presenter.BookPresenter;
-import com.liuh.mtoutiao.ui.IView.BookView;
+import com.chaychan.library.BottomBarItem;
+import com.chaychan.library.BottomBarLayout;
 import com.liuh.mtoutiao.R;
+import com.liuh.mtoutiao.service.presenter.BasePresenter;
+import com.liuh.mtoutiao.ui.adapter.MainTabAdapter;
+import com.liuh.mtoutiao.ui.base.BaseActivity;
+import com.liuh.mtoutiao.ui.base.BaseFragment;
+import com.liuh.mtoutiao.ui.fragment.HomeFragment;
+import com.liuh.mtoutiao.ui.fragment.MeFragment;
+import com.liuh.mtoutiao.ui.fragment.MicroFragment;
+import com.liuh.mtoutiao.ui.fragment.VideoFragment;
+import com.liuh.mtoutiao.ui.widget.NoScrollViewPager;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
 
 
-public class MainActivity extends AppCompatActivity implements BookView {
+public class MainActivity extends BaseActivity {
+    @BindView(R.id.vp_content)
+    NoScrollViewPager mVpContent;
+    @BindView(R.id.bottom_bar)
+    BottomBarLayout mBottomBarLayout;
 
-    TextView tvContent;
-    private BookPresenter mBookPresenter = new BookPresenter(this);
+    private List<BaseFragment> mFragments;
 
-    // Used to load the 'native-lib' library on application startup.
-//    static {
-//        System.loadLibrary("native-lib");
-//    }
+    private MainTabAdapter mTabAdapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        tvContent = findViewById(R.id.tv_content);
-
-        mBookPresenter.onCreate();
-        mBookPresenter.attachView(this);
-        mBookPresenter.getSearchBooks("西游记", null, 0, 1);
+    protected BasePresenter createPresenter() {
+        return null;
     }
 
     @Override
-    public void onSuccess(Book book) {
-        tvContent.setText(book.toString());
+    protected int provideContentViewId() {
+        return R.layout.activity_main;
     }
 
     @Override
-    public void onError(String result) {
-        tvContent.setText(result);
+    protected void initData() {
+        mFragments = new ArrayList<BaseFragment>(4);
+        mFragments.add(new HomeFragment());
+        mFragments.add(new VideoFragment());
+        mFragments.add(new MicroFragment());
+        mFragments.add(new MeFragment());
     }
 
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
-//    public native String stringFromJNI();
+    @Override
+    protected void initListener() {
+        mTabAdapter = new MainTabAdapter(getSupportFragmentManager(), mFragments);
+        mVpContent.setAdapter(mTabAdapter);
+        mVpContent.setOffscreenPageLimit(mFragments.size());
+        mBottomBarLayout.setViewPager(mVpContent);
+
+        mBottomBarLayout.setOnItemSelectedListener(new BottomBarLayout.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(BottomBarItem bottomBarItem, int position) {
+
+            }
+        });
+
+    }
 }

@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MToutiao.iml" filepath="$PROJECT_DIR$/MToutiao.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bottombar-lib/bottombar-lib.iml" filepath="$PROJECT_DIR$/bottombar-lib/bottombar-lib.iml" />
     </modules>
   </component>
 </project>

@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.util.TypedValue;
 import android.widget.Toast;
 
+import com.liuh.mtoutiao.app.base.BaseApp;
+
 
 public class UIUtils {
 
@@ -47,7 +49,7 @@ public class UIUtils {
      * @return
      */
     public static Context getContext() {
-        return MyApp.getContext();
+        return BaseApp.getmContext();
     }
 
     /**
@@ -113,7 +115,7 @@ public class UIUtils {
      * @return
      */
     public static Handler getMainThreadHandler() {
-        return MyApp.getMainHandler();
+        return BaseApp.getmHandler();
     }
 
     /**
@@ -122,7 +124,7 @@ public class UIUtils {
      * @return
      */
     public static long getMainThreadId() {
-        return MyApp.getMainThreadId();
+        return BaseApp.getmMainThreadId();
     }
 
     /**
