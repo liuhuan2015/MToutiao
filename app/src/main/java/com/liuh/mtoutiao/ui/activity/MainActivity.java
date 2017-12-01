@@ -13,7 +13,11 @@ import com.liuh.mtoutiao.ui.fragment.MicroFragment;
 import com.liuh.mtoutiao.ui.fragment.VideoFragment;
 import com.liuh.mtoutiao.ui.widget.NoScrollViewPager;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -61,6 +65,7 @@ public class MainActivity extends BaseActivity {
 
             }
         });
+
 
     }
 }

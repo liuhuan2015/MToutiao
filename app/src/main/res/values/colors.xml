@@ -12,4 +12,10 @@
     <color name="common_grey">#515051</color>
     <color name="status_color_red">#D33D3C</color>
 
+    <color name="tab_selected_color">#fff85959</color>
+
+    <color name="tab_text_unselected_color">#ff222222</color>
+
+    <color name="tab_layout_divider">#ffe8e8e8</color>
+
 </resources>

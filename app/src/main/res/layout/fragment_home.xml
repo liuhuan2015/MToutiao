@@ -1,15 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:orientation="vertical">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="@string/tab_home"
-        android:textSize="20sp" />
+        android:id="@+id/tv_search"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/search_background"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:text="@string/search_you_want_to_search"
+        android:textSize="14sp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="35dp">
+
+        <me.weyye.library.colortrackview.ColorTrackTabLayout
+            android:id="@+id/tab_channel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            app:tabIndicatorColor="@color/tab_selected_color"
+            app:tabMode="scrollable"
+            app:tabSelectedTextColor="@color/tab_selected_color"
+            app:tabTextAppearance="@style/TextAppearanceHome"
+            app:tabTextColor="@color/tab_text_unselected_color" />
+
+        <ImageView
+            android:id="@+id/iv_addchannel"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/shadow_add_titlebar_new"
+            android:paddingLeft="5dp"
+            android:scaleType="center"
+            android:src="@drawable/add_channel" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/tab_layout_divider" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_homecontent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 
-</RelativeLayout>
+</LinearLayout>
