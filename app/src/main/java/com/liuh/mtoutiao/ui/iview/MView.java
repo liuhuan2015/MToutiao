@@ -1,4 +1,4 @@
-package com.liuh.mtoutiao.ui.IView;
+package com.liuh.mtoutiao.ui.iview;
 
 /**
  * Created by huan on 2017/11/14 10:35.

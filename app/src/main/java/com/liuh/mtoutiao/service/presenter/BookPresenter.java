@@ -5,8 +5,8 @@ import android.content.Intent;
 
 import com.liuh.mtoutiao.service.entity.Book;
 import com.liuh.mtoutiao.service.manager.DataManager;
-import com.liuh.mtoutiao.ui.IView.BookView;
-import com.liuh.mtoutiao.ui.IView.MView;
+import com.liuh.mtoutiao.ui.iview.BookView;
+import com.liuh.mtoutiao.ui.iview.MView;
 
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;

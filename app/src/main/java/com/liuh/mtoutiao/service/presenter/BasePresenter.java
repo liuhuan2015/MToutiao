@@ -2,7 +2,7 @@ package com.liuh.mtoutiao.service.presenter;
 
 import android.content.Intent;
 
-import com.liuh.mtoutiao.ui.IView.MView;
+import com.liuh.mtoutiao.ui.iview.MView;
 
 
 /**

@@ -1,4 +1,4 @@
-package com.liuh.mtoutiao.ui.IView;
+package com.liuh.mtoutiao.ui.iview;
 
 
 import com.liuh.mtoutiao.service.entity.Book;
