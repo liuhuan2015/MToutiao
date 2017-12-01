@@ -56,6 +56,7 @@ public class MainActivity extends BaseActivity {
     protected void initListener() {
         mTabAdapter = new MainTabAdapter(getSupportFragmentManager(), mFragments);
         mVpContent.setAdapter(mTabAdapter);
+        //设置预加载页面为4，即打开应用，就直接全部加载。
         mVpContent.setOffscreenPageLimit(mFragments.size());
         mBottomBarLayout.setViewPager(mVpContent);
 
