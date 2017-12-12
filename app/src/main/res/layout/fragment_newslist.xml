@@ -1,15 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:orientation="vertical">
 
+    <com.liuh.uikit.TipView
+        android:id="@+id/tip_view"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:visibility="gone"
+        app:tipBackgroundColor="@color/tip_view_bg"
+        app:tipText="@string/net_unavailable"
+        app:tipTextColor="@color/tip_view_text_color"
+        app:tipTextSize="14sp" />
+
+
+    <com.liuh.uikit.refreshlayout.BGARefreshLayout
+        android:id="@+id/refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="visible">
+
+        <FrameLayout
+            android:id="@+id/fl_content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <com.liuh.uikit.powerfulrecyclerview.PowerfulRecyclerView
+                android:id="@+id/rv_news"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:dividerColor="@color/divider"
+                app:dividerMarginLeft="10dp"
+                app:dividerMarginRight="10dp"
+                app:dividerSize="0.5dp" />
+        </FrameLayout>
+
+
+    </com.liuh.uikit.refreshlayout.BGARefreshLayout>
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="这里显示新闻列表"
-        android:textSize="20sp" />
+        android:id="@+id/tv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
-</RelativeLayout>
+
+</LinearLayout>

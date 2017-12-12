@@ -1,1 +1,1 @@
-include ':app', ':bottombar-lib', ':colorTabLayout-lib'
+include ':app', ':bottombar-lib', ':colorTabLayout-lib', ':uikit'

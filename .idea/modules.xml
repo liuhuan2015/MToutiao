@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/bottombar-lib/bottombar-lib.iml" filepath="$PROJECT_DIR$/bottombar-lib/bottombar-lib.iml" />
       <module fileurl="file://$PROJECT_DIR$/colorTabLayout-lib/colorTabLayout-lib.iml" filepath="$PROJECT_DIR$/colorTabLayout-lib/colorTabLayout-lib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/uikit/uikit.iml" filepath="$PROJECT_DIR$/uikit/uikit.iml" />
     </modules>
   </component>
 </project>

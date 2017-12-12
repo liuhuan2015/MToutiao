@@ -5,6 +5,6 @@
     <version value="1" />
 
     <list>
-        <mapping class="com.chaychan.news.model.entity.NewsRecord"/>
+        <mapping class="com.liuh.mtoutiao.service.entity.NewsRecord"/>
     </list>
 </litepal>

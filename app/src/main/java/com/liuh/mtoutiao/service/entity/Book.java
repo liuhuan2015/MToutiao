@@ -1,12 +1,13 @@
 package com.liuh.mtoutiao.service.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by huan on 2017/11/14 08:48.
  */
 
-public class Book {
+public class Book implements Serializable {
 
 
     /**
