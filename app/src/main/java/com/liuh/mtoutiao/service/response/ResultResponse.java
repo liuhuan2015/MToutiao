@@ -1,4 +1,4 @@
-package com.liuh.mtoutiao.service.entity;
+package com.liuh.mtoutiao.service.response;
 
 /**
  * Date: 2017/12/12 09:58

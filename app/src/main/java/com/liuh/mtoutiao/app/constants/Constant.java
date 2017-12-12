@@ -7,6 +7,9 @@ package com.liuh.mtoutiao.app.constants;
  */
 
 public class Constant {
+
+    /**接口根地址*/
+    public static final String BASE_SERVER_URL = "http://is.snssdk.com/";
     /**
      * 已选中频道的json
      **/

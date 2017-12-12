@@ -2,6 +2,7 @@ package com.liuh.mtoutiao.service.api;
 
 import com.google.gson.GsonBuilder;
 import com.liuh.mtoutiao.app.base.BaseApp;
+import com.liuh.mtoutiao.app.constants.Constant;
 import com.liuh.mtoutiao.ui.utils.LogUtil;
 
 import java.io.File;
@@ -43,7 +44,7 @@ public class ApiRetrofit {
                 .build();
 
         mRetrofit = new Retrofit.Builder()
-                .baseUrl("https://api.douban.com/v2/")
+                .baseUrl(Constant.BASE_SERVER_URL)
                 .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().create()))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())//支持Rxjava
                 .client(mClient)

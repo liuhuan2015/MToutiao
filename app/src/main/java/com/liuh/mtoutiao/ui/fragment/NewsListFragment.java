@@ -19,6 +19,8 @@ import com.liuh.mtoutiao.ui.adapter.NewsApdater;
 import com.liuh.mtoutiao.ui.base.BaseFragment;
 import com.liuh.mtoutiao.ui.iview.BookView;
 import com.liuh.mtoutiao.ui.iview.INewsListView;
+import com.liuh.mtoutiao.ui.utils.LogUtil;
+import com.liuh.mtoutiao.ui.utils.NewsRecordHelper;
 import com.liuh.mtoutiao.ui.utils.UIUtils;
 import com.liuh.uikit.TipView;
 import com.liuh.uikit.powerfulrecyclerview.PowerfulRecyclerView;
@@ -126,11 +128,25 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
     protected void loadData() {
         mStateView.showLoading();
         //查找该频道的最后一组记录
-//        mNewsRecord=NewsRe
+        mNewsRecord = NewsRecordHelper.getLastNewsRecord(mChannelCode);
+        if (mNewsRecord == null) {
+            //找不到记录，拉取网络数据
+            mNewsRecord = new NewsRecord();
+            LogUtil.e("NewsListFragment","..............mChannelCode:"+mChannelCode);
+            mPresenter.getNewsList(mChannelCode);
+            return;
+        }
 
+        //找到最后一组记录，转换成新闻集合并展示
+        List<News> newsList = NewsRecordHelper.convertToNewsLits(mNewsRecord.getJson());
+        mNewsList.addAll(newsList);
+        mNewsAdapter.notifyDataSetChanged();
+        mStateView.showContent();
 
-
-
+        //如果时间超过10分钟，则自动刷新
+        if (mNewsRecord.getTime() - System.currentTimeMillis() >= 10 * 60 * 1000) {
+            mRefreshLayout.beginRefreshing();
+        }
 
     }
 
@@ -151,6 +167,11 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
 
     @Override
     public void onGetNewsListSuccess(List<News> newsList, String tipInfo) {
+        LogUtil.e("onGetNewsListSuccess", "---------tipInfo:" + tipInfo);
+        mRefreshLayout.endRefreshing();
+
+
+
 
     }
 
