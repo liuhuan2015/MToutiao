@@ -25,4 +25,16 @@
 
     <color name="pull_refresh_bg">#F3F5F4</color>
 
+    <color name="news_tag_border_red">#F96B6B</color>
+    <color name="news_tag_border_blue">#3091D8</color>
+
+    <color name="common_text_color">#ff222222</color>
+    <color name="light_font_color">#ff999999</color>
+    <color name="write_comment_divider_color">#ffe6e6e6</color>
+
+    <color name="translucent">#aa000000</color>
+    <color name="light_white">#C1C1C1</color>
+
+    <color name="mine_function_span">#F3F5F4</color>
+
 </resources>

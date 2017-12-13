@@ -1,6 +1,7 @@
 package com.liuh.mtoutiao.ui.fragment;
 
 import android.support.v7.widget.GridLayoutManager;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
@@ -19,6 +20,7 @@ import com.liuh.mtoutiao.ui.adapter.NewsApdater;
 import com.liuh.mtoutiao.ui.base.BaseFragment;
 import com.liuh.mtoutiao.ui.iview.BookView;
 import com.liuh.mtoutiao.ui.iview.INewsListView;
+import com.liuh.mtoutiao.ui.utils.ListUtils;
 import com.liuh.mtoutiao.ui.utils.LogUtil;
 import com.liuh.mtoutiao.ui.utils.NewsRecordHelper;
 import com.liuh.mtoutiao.ui.utils.UIUtils;
@@ -132,7 +134,7 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
         if (mNewsRecord == null) {
             //找不到记录，拉取网络数据
             mNewsRecord = new NewsRecord();
-            LogUtil.e("NewsListFragment","..............mChannelCode:"+mChannelCode);
+            LogUtil.e("NewsListFragment", "..............mChannelCode:" + mChannelCode);
             mPresenter.getNewsList(mChannelCode);
             return;
         }
@@ -168,11 +170,52 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
     @Override
     public void onGetNewsListSuccess(List<News> newsList, String tipInfo) {
         LogUtil.e("onGetNewsListSuccess", "---------tipInfo:" + tipInfo);
-        mRefreshLayout.endRefreshing();
+        mRefreshLayout.endRefreshing();//加载完毕后在UI线程结束下拉刷新
 
+        if (ListUtils.isEmpty(mNewsList)) {
+            //本地没有存放过数据，说明是第一次请求网络
+            if (ListUtils.isEmpty(newsList)) {
+                mStateView.showEmpty();
+            } else
+                mStateView.showContent();
+        } else {
+            //本地存放有数据
+            if (ListUtils.isEmpty(newsList)) {
+                UIUtils.showToast("目前没有最新新闻了");
+            } else {
+                if (TextUtils.isEmpty(newsList.get(0).title)) {
+                    //由于汽车、体育等频道第一条属于导航的内容，所以如果第一条没有标题，则移除
+                    newsList.remove(0);
+                }
+                dealRepeat(newsList);//处理新闻重复问题
+                mNewsList.addAll(0, newsList);
+                mNewsAdapter.notifyDataSetChanged();
+                mTipView.show(tipInfo);
+                //保存到数据库
+                NewsRecordHelper.save(mChannelCode, mGson.toJson(newsList));
+            }
+        }
 
+    }
 
-
+    /**
+     * 处理置顶新闻和广告重复
+     *
+     * @param newsList
+     */
+    private void dealRepeat(List<News> newsList) {
+        if (isRecommendChannel && !ListUtils.isEmpty(mNewsList)) {
+            //如果是推荐频道并且数据列表已经有数据，处理置顶新闻或广告重复的问题
+            mNewsList.remove(0);//由于第一条新闻是重复的，移除原有的第一条
+            //新闻列表通常第4个是广告,除了第一次有广告,再次获取的都移除广告
+            if (newsList.size() >= 4) {
+                News fourthNews = newsList.get(3);
+                //如果列表第四个tag是广告,则移除
+                if (fourthNews.tag.equals(Constant.ARTICLE_GENRE_AD)) {
+                    newsList.remove(fourthNews);
+                }
+            }
+        }
     }
 
     @Override
