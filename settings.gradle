@@ -1,1 +1,1 @@
-include ':app', ':bottombar-lib', ':colorTabLayout-lib', ':uikit'
+include ':app', ':bottombar-lib', ':colorTabLayout-lib', ':uikit', ':jcvideoplayer-lib'

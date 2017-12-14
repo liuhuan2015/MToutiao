@@ -3,16 +3,30 @@ package com.liuh.mtoutiao.ui.adapter;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.util.MultiTypeDelegate;
 import com.liuh.mtoutiao.R;
+import com.liuh.mtoutiao.app.constants.Constant;
 import com.liuh.mtoutiao.service.entity.News;
+import com.liuh.mtoutiao.ui.utils.GlideUtils;
 import com.liuh.mtoutiao.ui.utils.ListUtils;
+import com.liuh.mtoutiao.ui.utils.LogUtil;
 import com.liuh.mtoutiao.ui.utils.TimeUtils;
+import com.liuh.mtoutiao.ui.utils.UIUtils;
+import com.liuh.mtoutiao.ui.utils.VideoPathDecoder;
 
 import java.util.List;
+
+import fm.jiecao.jcvideoplayer_lib.JCVideoPlayer;
+import fm.jiecao.jcvideoplayer_lib.JCVideoPlayerStandard;
+import fm.jiecao.jcvideoplayer_lib.OnVideoClickListener;
+
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 /**
  * Date: 2017/12/12 14:34
@@ -129,10 +143,135 @@ public class NewsApdater extends BaseQuickAdapter<News, BaseViewHolder> {
         }
 
         //根据类型为不同布局的条目设置数据
+        switch (helper.getItemViewType()) {
+            case CENTER_SINGLE_PIC_NEWS:
+                //中间大图布局
+                TextView tvBottomRight = helper.getView(R.id.tv_bottom_right);
+                if (news.has_video) {
+                    //是否有视频
+                    helper.setVisible(R.id.iv_play, true);
+                    tvBottomRight.setCompoundDrawables(null, null, null, null);//去除TextView左侧图标
+                    helper.setText(R.id.tv_bottom_right, TimeUtils.secToTime(news.video_duration));//设置时长
+                    GlideUtils.load(mContext, news.video_detail_info.detail_video_large_image.url, helper.getView(R.id.iv_img));//中间图片使用视频大图
+                } else {
+                    //没有视频
+                    helper.setVisible(R.id.iv_play, false);//隐藏播放按钮
+                    if (news.gallary_image_count == 1) {
+                        tvBottomRight.setCompoundDrawables(null, null, null, null);//去除TextView左侧图标
+                    } else {
+                        tvBottomRight.setCompoundDrawables(mContext.getResources().getDrawable(R.mipmap.icon_picture_group), null, null, null);//TextView增加左侧图标
+                        helper.setText(R.id.tv_bottom_right, news.gallary_image_count + UIUtils.getString(R.string.img_unit));//设置图片数
+                    }
+                    GlideUtils.load(mContext, news.image_list.get(0).url.replace("list/300x196", "large"), helper.getView(R.id.iv_img));//使用image_list中第一张
+                }
+                break;
+            case RIGHT_PIC_VIDEO_NEWS:
+                //右侧小图布局
+                if (news.has_video) {
+                    helper.setVisible(R.id.ll_duration, true);//显示时长
+                    helper.setText(R.id.tv_duration, TimeUtils.secToTime(news.video_duration));//设置时长
+                } else {
+                    helper.setVisible(R.id.ll_duration, false);//隐藏时长
+                }
+                GlideUtils.load(mContext, news.middle_image.url, helper.getView(R.id.iv_img));//右侧图片或视频的图片使用middle_image
+                break;
+            case THREE_PICS_NEWS:
+                //三张图片的新闻
+                GlideUtils.load(mContext, news.image_list.get(0).url, helper.getView(R.id.iv_img1));
+                GlideUtils.load(mContext, news.image_list.get(1).url, helper.getView(R.id.iv_img2));
+                GlideUtils.load(mContext, news.image_list.get(2).url, helper.getView(R.id.iv_img3));
+                break;
+            case VIDEO_LIST_NEWS:
+                //视频列表
+                dealVideo(helper, news);
+                return;//视频列表布局没有下面的设置标签的操作,直接return
+        }
 
+        //根据情况显示置顶,广告和热点的标签
+        int position = helper.getAdapterPosition();
+        String[] channelCodes = UIUtils.getStringArr(R.array.channel_code);
+        boolean isTop = position == 0 && mChannelCode.equals(channelCodes[0]);//属于置顶
+        boolean isHot = news.hot == 1;//属于热点新闻
+        boolean isAD = !TextUtils.isEmpty(news.tag) ? news.tag.equals(Constant.ARTICLE_GENRE_AD) : false;//是否是广告新闻
+        boolean isMovie = !TextUtils.isEmpty(news.tag) ? news.tag.equals(Constant.TAG_MOVIE) : false;//是否是影视新闻
+        helper.setVisible(R.id.tv_tag, isTop || isHot || isAD || isMovie);//如果是上面任意一个,显示标签
+        helper.setVisible(R.id.tv_comment_num, !isAD);//如果是广告,则隐藏评论数
 
+        String tag = "";
+        if (isTop) {
+            tag = UIUtils.getString(R.string.to_top);
+            helper.setTextColor(R.id.tv_tag, UIUtils.getColor(R.color.news_tag_border_red));
+        } else if (isHot) {
+            tag = UIUtils.getString(R.string.hot);
+            helper.setTextColor(R.id.tv_tag, UIUtils.getColor(R.color.news_tag_border_red));
+        } else if (isAD) {
+            tag = UIUtils.getString(R.string.ad);
+            helper.setTextColor(R.id.tv_tag, UIUtils.getColor(R.color.news_tag_border_blue));
+        } else if (isMovie) {
+            tag = UIUtils.getString(R.string.tag_movie);
+            helper.setTextColor(R.id.tv_tag, UIUtils.getColor(R.color.news_tag_border_blue));
+        }
+        helper.setText(R.id.tv_tag, tag);
+    }
 
+    private void dealVideo(BaseViewHolder helper, News news) {
+        helper.setVisible(R.id.ll_title, true);//显示标题栏
+        helper.setText(R.id.tv_title, news.title);//设置标题
 
+        String format = UIUtils.getString(R.string.video_play_count);
+        int watchCount = news.video_detail_info.video_watch_count;
+        String countUnit = "";
+        if (watchCount > 10000) {
+            watchCount = watchCount / 10000;
+            countUnit = "万";
+        }
+
+        helper.setText(R.id.tv_watch_count, String.format(format, watchCount + countUnit));//播放次数
+        GlideUtils.loadRound(mContext, news.user_info.avatar_url, helper.getView(R.id.iv_avatar));
+
+        helper.setVisible(R.id.ll_duration, true)//显示时长
+                .setText(R.id.tv_duration, TimeUtils.secToTime(news.video_duration));//设置时长
+
+        helper.setText(R.id.tv_author, news.user_info.name)//昵称
+                .setText(R.id.tv_comment_count, String.valueOf(news.comment_count));//评论数
+
+        //设置播放器相关
+        JCVideoPlayerStandard videoPlayerStandard = helper.getView(R.id.video_player);
+        GlideUtils.load(mContext, news.video_detail_info.detail_video_large_image.url, videoPlayerStandard.thumbImageView, R.color.divider);//设置缩略图
+
+        videoPlayerStandard.setAllControlsVisible(GONE, GONE, VISIBLE, GONE, VISIBLE, VISIBLE, GONE);
+        videoPlayerStandard.tinyBackImageView.setVisibility(GONE);
+        videoPlayerStandard.setPosition(helper.getAdapterPosition());//绑定position
+
+        videoPlayerStandard.titleTextView.setText("");//清除标题,防止复用的时候出现
+
+        videoPlayerStandard.setOnVideoClickListener(new OnVideoClickListener() {
+            @Override
+            public void onVideoClickToStart() {
+                //点击播放
+                helper.setVisible(R.id.ll_duration, false);//隐藏时长
+                helper.setVisible(R.id.ll_title, false);//隐藏标题栏
+
+                VideoPathDecoder decoder = new VideoPathDecoder() {
+                    @Override
+                    protected void onSuccess(String url) {
+                        LogUtil.e("NewsApdater", "Video Url:" + url);
+                        videoPlayerStandard.setUp(url, JCVideoPlayer.SCREEN_LAYOUT_LIST, news.title);
+                        videoPlayerStandard.seekToInAdvance = news.video_detail_info.progress;
+                        videoPlayerStandard.startVideo();
+
+                    }
+
+                    @Override
+                    protected void onDecodeError() {
+
+                    }
+                };
+                LogUtil.e("NewsApdater", "------------------news.url:" + news.url);
+                decoder.decodePath(news.url);
+
+            }
+        });
 
     }
 

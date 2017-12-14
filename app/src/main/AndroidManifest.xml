@@ -17,7 +17,6 @@
             android:configChanges="keyboardHidden|screenSize|orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
-
         <activity
             android:name=".ui.activity.SplashActivity"
             android:configChanges="keyboardHidden|screenSize|orientation"
@@ -29,6 +28,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.activity.VideoDetailActivity" />
+        <activity android:name=".ui.activity.WebViewActivity" />
+        <activity android:name=".ui.activity.NewsDetailDetailActivity"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package com.liuh.mtoutiao.ui.fragment;
 
+import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.text.TextUtils;
 import android.view.View;
@@ -16,12 +17,16 @@ import com.liuh.mtoutiao.service.entity.News;
 import com.liuh.mtoutiao.service.entity.NewsRecord;
 import com.liuh.mtoutiao.service.presenter.BookPresenter;
 import com.liuh.mtoutiao.service.presenter.NewsListPresenter;
+import com.liuh.mtoutiao.ui.activity.NewsDetailDetailActivity;
+import com.liuh.mtoutiao.ui.activity.VideoDetailActivity;
+import com.liuh.mtoutiao.ui.activity.WebViewActivity;
 import com.liuh.mtoutiao.ui.adapter.NewsApdater;
 import com.liuh.mtoutiao.ui.base.BaseFragment;
 import com.liuh.mtoutiao.ui.iview.BookView;
 import com.liuh.mtoutiao.ui.iview.INewsListView;
 import com.liuh.mtoutiao.ui.utils.ListUtils;
 import com.liuh.mtoutiao.ui.utils.LogUtil;
+import com.liuh.mtoutiao.ui.utils.NetWorkUtils;
 import com.liuh.mtoutiao.ui.utils.NewsRecordHelper;
 import com.liuh.mtoutiao.ui.utils.UIUtils;
 import com.liuh.uikit.TipView;
@@ -124,6 +129,37 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
         mNewsAdapter.setEnableLoadMore(true);
         mNewsAdapter.setOnLoadMoreListener(this, mRecyclerView);
 
+        mNewsAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                News news = mNewsList.get(position);
+
+                String itemId = news.item_id;
+                StringBuffer urlSb = new StringBuffer("http://m.toutiao.com/i");
+                urlSb.append(itemId).append("/info/");
+                String url = urlSb.toString();//http://m.toutiao.com/i6412427713050575361/info/
+                Intent intent = null;
+                if (news.has_video) {
+                    //视频
+                    intent = new Intent(mActivity, VideoDetailActivity.class);
+
+
+                } else {
+                    //非视频新闻
+                    if (news.article_type == 1) {
+                        //如果article_type为1,则是使用WebViewActivity打开
+                        intent = new Intent(mActivity, WebViewActivity.class);
+                        intent.putExtra(WebViewActivity.URL, news.article_type);
+                        startActivity(intent);
+                        return;
+                    }
+                    intent = new Intent(mActivity, NewsDetailDetailActivity.class);
+                }
+//                intent.putExtra();
+                startActivity(intent);
+            }
+        });
+
     }
 
     @Override
@@ -154,16 +190,62 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
 
     @Override
     public void onBGARefreshLayoutBeginRefreshing(BGARefreshLayout refreshLayout) {
-
+        if (!NetWorkUtils.isNetworkAvailable(mActivity)) {
+            //网络不可用,弹出提示
+            mTipView.show();
+            if (mRefreshLayout.getCurrentRefreshStatus() == BGARefreshLayout.RefreshStatus.REFRESHING) {
+                mRefreshLayout.endRefreshing();
+            }
+            return;
+        }
+        mPresenter.getNewsList(mChannelCode);
     }
 
     @Override
     public boolean onBGARefreshLayoutBeginLoadingMore(BGARefreshLayout refreshLayout) {
+        //BGARefreshLayout的加载更多,不处理,使用的是BaseQuickAdapter的加载更多
         return false;
     }
 
     @Override
     public void onLoadMoreRequested() {
+        //BaseQuickAdapter的加载更多,没有请求网络数据,而是从本地数据库中取数据
+        if (mNewsRecord.getPage() == 0 || mNewsRecord.getPage() == 1) {
+            //如果记录的页数为0(即是创建的空记录),或者页数为1(即已经是第一条记录了)
+            mNewsAdapter.loadMoreEnd();
+            return;
+        }
+
+        NewsRecord preNewsRecord = NewsRecordHelper.getPreNewsRecord(mChannelCode, mNewsRecord.getPage());
+        if (preNewsRecord == null) {
+            mNewsAdapter.loadMoreEnd();
+            return;
+        }
+
+        mNewsRecord = preNewsRecord;
+
+        long startTime = System.currentTimeMillis();
+
+        List<News> newsList = NewsRecordHelper.convertToNewsLits(mNewsRecord.getJson());
+
+        if (isRecommendChannel) {
+            //如果是推荐频道
+            newsList.remove(0);//移除第一个,因为第一个是置顶新闻,重复
+        }
+
+        long endTime = System.currentTimeMillis();
+        //由于是读取数据库,如果耗时不足1秒,则1秒后才收起加载更多
+        if (endTime - startTime <= 1000) {
+            UIUtils.postTaskDelay(new Runnable() {
+                @Override
+                public void run() {
+                    mNewsAdapter.loadMoreComplete();
+                    mNewsList.addAll(newsList);//添加到集合下面
+                    mNewsAdapter.notifyDataSetChanged();//刷新adapter
+
+                }
+            }, (int) (1000 - (endTime - startTime)));
+        }
 
     }
 
@@ -176,25 +258,26 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
             //本地没有存放过数据，说明是第一次请求网络
             if (ListUtils.isEmpty(newsList)) {
                 mStateView.showEmpty();
-            } else
-                mStateView.showContent();
-        } else {
-            //本地存放有数据
-            if (ListUtils.isEmpty(newsList)) {
-                UIUtils.showToast("目前没有最新新闻了");
-            } else {
-                if (TextUtils.isEmpty(newsList.get(0).title)) {
-                    //由于汽车、体育等频道第一条属于导航的内容，所以如果第一条没有标题，则移除
-                    newsList.remove(0);
-                }
-                dealRepeat(newsList);//处理新闻重复问题
-                mNewsList.addAll(0, newsList);
-                mNewsAdapter.notifyDataSetChanged();
-                mTipView.show(tipInfo);
-                //保存到数据库
-                NewsRecordHelper.save(mChannelCode, mGson.toJson(newsList));
+                return;
             }
+            mStateView.showContent();
         }
+        //本地存放有数据
+        if (ListUtils.isEmpty(newsList)) {
+            UIUtils.showToast("目前没有最新新闻了");
+        } else {
+            if (TextUtils.isEmpty(newsList.get(0).title)) {
+                //由于汽车、体育等频道第一条属于导航的内容，所以如果第一条没有标题，则移除
+                newsList.remove(0);
+            }
+            dealRepeat(newsList);//处理新闻重复问题
+            mNewsList.addAll(0, newsList);
+            mNewsAdapter.notifyDataSetChanged();
+            mTipView.show(tipInfo);
+            //保存到数据库
+            NewsRecordHelper.save(mChannelCode, mGson.toJson(newsList));
+        }
+
 
     }
 
@@ -220,6 +303,16 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
 
     @Override
     public void onError() {
+        mTipView.show();
+        if (ListUtils.isEmpty(mNewsList)) {
+            //显示重试的布局
+            mStateView.showEmpty();
+        }
+
+        //收起刷新
+        if (mRefreshLayout.getCurrentRefreshStatus() == BGARefreshLayout.RefreshStatus.REFRESHING) {
+            mRefreshLayout.endRefreshing();
+        }
 
     }
 }
