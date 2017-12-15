@@ -30,7 +30,8 @@
         </activity>
         <activity android:name=".ui.activity.VideoDetailActivity" />
         <activity android:name=".ui.activity.WebViewActivity" />
-        <activity android:name=".ui.activity.NewsDetailDetailActivity"></activity>
+        <activity android:name=".ui.activity.NewsDetailDetailActivity" />
+        <activity android:name=".ui.activity.ImageViewPagerActivity"></activity>
     </application>
 
 </manifest>

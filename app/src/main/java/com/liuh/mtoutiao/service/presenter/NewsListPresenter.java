@@ -20,15 +20,12 @@ import io.reactivex.observers.DisposableObserver;
 
 public class NewsListPresenter extends BasePresenter<INewsListView> {
 
-    private INewsListView mINewsListView;
-
     private long lastTime;
 
     private NewsResponse mNewsResponse;
 
     public NewsListPresenter(INewsListView view) {
         super(view);
-        this.mINewsListView = view;
     }
 
     public void getNewsList(String channelCode) {
@@ -49,7 +46,7 @@ public class NewsListPresenter extends BasePresenter<INewsListView> {
             @Override
             public void onError(Throwable e) {
                 LogUtil.e("NewsListPresenter", "....." + e.getLocalizedMessage());
-                mINewsListView.onError();
+                mView.onError();
             }
 
             @Override
@@ -63,7 +60,7 @@ public class NewsListPresenter extends BasePresenter<INewsListView> {
                             newsList.add(news);
                         }
                     }
-                    mINewsListView.onGetNewsListSuccess(newsList, mNewsResponse.tips.display_info);
+                    mView.onGetNewsListSuccess(newsList, mNewsResponse.tips.display_info);
                 }
             }
         };

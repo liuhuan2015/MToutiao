@@ -8,7 +8,9 @@ package com.liuh.mtoutiao.app.constants;
 
 public class Constant {
 
-    /**接口根地址*/
+    /**
+     * 接口根地址
+     */
     public static final String BASE_SERVER_URL = "http://is.snssdk.com/";
     /**
      * 已选中频道的json
@@ -31,5 +33,8 @@ public class Constant {
     public static final String TAG_MOVIE = "video_movie";
 
     public static final String URL_VIDEO = "/video/urls/v/1/toutiao/mp4/%s?r=%s";
-
+    /**
+     * 评论列表每页的数目
+     */
+    public static final int COMMENT_PAGE_SIZE = 20;
 }

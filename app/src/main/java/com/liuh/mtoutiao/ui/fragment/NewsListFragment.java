@@ -17,6 +17,7 @@ import com.liuh.mtoutiao.service.entity.News;
 import com.liuh.mtoutiao.service.entity.NewsRecord;
 import com.liuh.mtoutiao.service.presenter.BookPresenter;
 import com.liuh.mtoutiao.service.presenter.NewsListPresenter;
+import com.liuh.mtoutiao.ui.activity.NewsDetailBaseActivity;
 import com.liuh.mtoutiao.ui.activity.NewsDetailDetailActivity;
 import com.liuh.mtoutiao.ui.activity.VideoDetailActivity;
 import com.liuh.mtoutiao.ui.activity.WebViewActivity;
@@ -155,7 +156,12 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
                     }
                     intent = new Intent(mActivity, NewsDetailDetailActivity.class);
                 }
-//                intent.putExtra();
+                intent.putExtra(NewsDetailBaseActivity.CHANNEL_CODE, mChannelCode);
+                intent.putExtra(NewsDetailBaseActivity.POSITION, position);
+                intent.putExtra(NewsDetailBaseActivity.DETAIL_URL, url);
+                intent.putExtra(NewsDetailBaseActivity.GROUP_ID, news.group_id);
+                intent.putExtra(NewsDetailBaseActivity.ITEM_ID, itemId);
+
                 startActivity(intent);
             }
         });

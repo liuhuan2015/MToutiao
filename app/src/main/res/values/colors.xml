@@ -37,4 +37,12 @@
 
     <color name="mine_function_span">#F3F5F4</color>
 
+    <color name="et_solid_color">#F2F4F3</color>
+
+    <color name="detail_tool_bar_bg">#fff4f5f6</color>
+    <color name="detail_et_border">#ffd8d8d8</color>
+    <color name="detail_comment_name_color">#ff406599</color>
+    <color name="detail_comment_like_color">#ffcacaca</color>
+    <color name="detail_comment_content_color">#ff505050</color>
+
 </resources>

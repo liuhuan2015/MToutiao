@@ -1,11 +1,13 @@
 package com.liuh.mtoutiao.service.response;
 
+import java.io.Serializable;
+
 /**
  * Date: 2017/12/12 09:58
  * Description: 访问返回的数据
  */
 
-public class ResultResponse<T> {
+public class ResultResponse<T> implements Serializable {
     public String has_more;
     public String message;
     public String success;
