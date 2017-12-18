@@ -4,24 +4,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.liuh.mtoutiao.R;
+import com.liuh.mtoutiao.service.entity.NewsDetail;
 import com.liuh.mtoutiao.service.presenter.BasePresenter;
 import com.liuh.mtoutiao.ui.base.BaseActivity;
 
-public class VideoDetailActivity extends BaseActivity {
+public class VideoDetailActivity extends NewsDetailBaseActivity {
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video_detail);
+    public void onGetNewsDetailSuccess(NewsDetail newsDetail) {
+
     }
 
     @Override
-    protected BasePresenter createPresenter() {
-        return null;
-    }
-
-    @Override
-    protected int provideContentViewId() {
+    protected int getViewContentViewId() {
         return 0;
     }
 }

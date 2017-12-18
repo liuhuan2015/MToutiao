@@ -2,6 +2,8 @@ package com.liuh.mtoutiao.ui.fragment;
 
 import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.RotateAnimation;
@@ -39,6 +41,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import fm.jiecao.jcvideoplayer_lib.JCMediaManager;
+import fm.jiecao.jcvideoplayer_lib.JCVideoPlayerManager;
+import fm.jiecao.jcvideoplayer_lib.JCVideoPlayerStandard;
 
 /**
  * Author:liuh
@@ -143,8 +148,13 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
                 if (news.has_video) {
                     //视频
                     intent = new Intent(mActivity, VideoDetailActivity.class);
-
-
+                    if (JCVideoPlayerManager.getCurrentJcvd() != null) {
+                        //传递进度
+                        int progress = JCMediaManager.instance().mediaPlayer.getCurrentPosition();
+                        if (progress != 0) {
+                            intent.putExtra(VideoDetailActivity.PROGRESS, progress);
+                        }
+                    }
                 } else {
                     //非视频新闻
                     if (news.article_type == 1) {
@@ -166,6 +176,31 @@ public class NewsListFragment extends BaseFragment<NewsListPresenter> implements
             }
         });
 
+        if (isVideoList) {
+            //如果是视频列表,监听滑动
+            mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+
+                    if (JCVideoPlayerManager.getCurrentJcvd() != null) {
+                        JCVideoPlayerStandard videoPlayerStandard = (JCVideoPlayerStandard) JCVideoPlayerManager.getCurrentJcvd();
+                        if (videoPlayerStandard.currentState == JCVideoPlayerStandard.CURRENT_STATE_PLAYING) {
+                            //如果正在播放
+                            LinearLayoutManager linearLayoutManager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+                            int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+                            int lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
+
+                            if (firstVisibleItemPosition > videoPlayerStandard.getPosition() || lastVisibleItemPosition < videoPlayerStandard.getPosition()) {
+                                //如果第一个可见的条目位置大于当前播放videoplayer的位置
+                                //或者最后一个条目的位置小于当前播放videoplayer的位置,释放资源
+                                JCVideoPlayerStandard.releaseAllVideos();
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 
     @Override
